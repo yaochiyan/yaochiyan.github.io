@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>亚男，嫁给我吧！</title>
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      overflow:hidden;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+      color:white;
+      background:linear-gradient(135deg,#0f1022,#2a0f2f);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .card{
+      width:min(820px,94vw);
+      padding:40px 28px;
+      border-radius:28px;
+      background:rgba(255,255,255,.08);
+      backdrop-filter:blur(18px);
+      box-shadow:0 20px 60px rgba(0,0,0,.4);
+      text-align:center;
+      position:relative;
+    }
+
+    .text{
+      font-size:clamp(16px,2.2vw,20px);
+      line-height:1.9;
+      margin-bottom:30px;
+      white-space:pre-wrap;
+    }
+
+    .big{
+      font-size:clamp(34px,6vw,60px);
+      font-weight:700;
+      margin-top:20px;
+      animation:float 4s ease-in-out infinite;
+      background:linear-gradient(90deg,#fff,#ffb3c1);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    @keyframes float{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+    }
+
+    /* hearts */
+    .heart{
+      position:absolute;
+      width:18px;
+      height:18px;
+      background:currentColor;
+      transform:rotate(45deg);
+      animation:rise linear forwards;
+    }
+    .heart:before,.heart:after{
+      content:"";
+      position:absolute;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:currentColor;
+    }
+    .heart:before{left:-9px}
+    .heart:after{top:-9px}
+
+    @keyframes rise{
+      0%{opacity:0;transform:translateY(0) rotate(45deg) scale(.8)}
+      10%{opacity:1}
+      100%{opacity:0;transform:translateY(-400px) rotate(45deg) scale(1.6)}
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="text" id="typing"></div>
+  <div class="big" id="finalLine" style="opacity:0;transition:opacity 2s ease;">亚男，嫁给我吧！</div>
+</div>
+
+
+<audio id="bgm" src="music.m4a" preload="auto" loop playsinline></audio>
+<script>
+  const fullText = "在这个充满爱的日子里，我想把心里最坚定的决定告诉你。\n遇见你，是我人生最幸运的事；爱上你，是我最认真、最不后悔的选择。\n未来的路，我想牵着你的手，一起走过所有平凡与不凡的日子。";
+  const typing = document.getElementById("typing");
+
+  
+  function typeWriter(text){
+    const totalDurationMs = 13000; // 13 seconds total typing time
+    const speed = Math.max(15, Math.floor(totalDurationMs / text.length));
+    let i = 0;
+    const timer = setInterval(()=>{
+      typing.textContent += text[i++];
+      if(i >= text.length){
+         clearInterval(timer);
+         setTimeout(()=>{
+           document.getElementById("finalLine").style.opacity = 1;
+         },800);
+      }
+    }, speed);
+  }
+  typeWriter(fullText);
+
+
+  // floating hearts on click
+  const card=document.getElementById("card");
+
+  function createHeart(x,y){
+    const heart=document.createElement("div");
+    heart.className="heart";
+    heart.style.left=x+"px";
+    heart.style.top=y+"px";
+    heart.style.color=`hsl(${Math.random()*360},90%,65%)`;
+    heart.style.animationDuration=(1.5+Math.random()*1.5)+"s";
+    document.body.appendChild(heart);
+    heart.addEventListener("animationend",()=>heart.remove());
+  }
+
+  document.addEventListener("click",(e)=>{
+    for(let i=0;i<6;i++){
+      createHeart(e.clientX-9+Math.random()*20,e.clientY-9+Math.random()*20);
+    }
+  });
+
+  // Play background music (music.m4a in the same folder) on first interaction
+  let musicStarted = false;
+  async function tryStartMusic(){
+    if(musicStarted) return;
+    const bgm = document.getElementById("bgm");
+    if(!bgm) return;
+    musicStarted = true;
+    try{
+      bgm.load();
+      bgm.currentTime = 0;
+      await bgm.play();
+    }catch(e){
+      musicStarted = false;
+    }
+  }
+  document.addEventListener("pointerdown", tryStartMusic, { passive: true });
+  document.addEventListener("click", tryStartMusic, { passive: true });
+
+</script>
+
+</body>
+</html>
